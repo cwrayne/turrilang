@@ -1,7 +1,8 @@
 # TurriLang
 GPT-4o's attempt at making a programming language using Python
 ## Easy Setup
-Download the latest version of `compiler.exe` and in CMD/PowerShell, run: ```
+Download the latest version of `compiler.exe` and in CMD/PowerShell, run:
+```
 compiler.exe file.tl
 ```
 ## Manual Setup

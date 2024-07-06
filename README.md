@@ -1,5 +1,15 @@
 # TurriLang
-GPT-4o's attempt at making a programming language using Python
+GPT-4o's attempt at making a programming language using Python that supports Python code and it's own interpreter.
+# Commands
+`print <text>` - Prints text to the screen.
+`loop_print <number> <text>` - Print <text> <number> times
+`func <name> <arg1> <arg2>` - Creates a function named <name> with two arguments: <arg1> and <arg2>
+`end_func` - Ends a function
+`if`, `elif`, `else`, `for`, `while` - Basic Python functions
+`check_even <number>` - Checks if a number is even
+## Precaution before using Python and Turrilang at the same time 
+If you start with a Python command, you can ONLY use Python commands for the rest of the line.
+Same vice versa: If you start with a TurriLang command, you can ONLY use TurriLang commands for the rest of the line.
 ## Windows
 ### Easy Setup
 Download the latest version of `compiler.exe` and in CMD/PowerShell, run:

@@ -65,7 +65,7 @@ dist/main.exe < .tl file > and it will print the results.
 #### Dependencies
 - Python - Download them from [Python's official website.](https://python.org)
 - pip
-- main-noargs.py from the latest release
+- create-exe.py from the latest release
 - A .tl file for compiling
 
 #### Creating the EXE
@@ -75,14 +75,14 @@ Enter the command:
 python -m pip install pyinstaller
 ```
 ##### Create the EXE
-Enter this command in the directory that contains main-noargs.py:
+Enter this command in the directory that contains create-exe.py:
 ```
-python -m PyInstaller --onefile --add-data "file.tl;." main-noargs.py
+python -m PyInstaller --onefile --add-data "file.tl;." create-exe.py
 ```
 and replace file.tl with your TurriLang file.
 Then to run the application:
 ```
-dist/main-noargs.exe
+dist/create-exe.exe
 ```
 and it will print the results.
 ## Unix (macOS and Linux)

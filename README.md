@@ -51,7 +51,7 @@ Install pyinstaller using CMD/PowerShell in the turrilang directory, **NOT** in 
 ```batch
 portable-python/python.exe -m pip install pyinstaller
 ```
-#### Compile main.exe
+#### Make a compiler
 ##### Compiler
 To compile main.exe/compiler.exe, run this command for the compiler in the turrilang directory:
 ```
@@ -61,13 +61,26 @@ and then run
 ```
 dist/main.exe < .tl file > and it will print the results.
 ```
-##### Standalone
-For a standalone exe, run:
+### Make a compiled standalone EXE file
+#### Dependencies
+- Python - Download them from [Python's official website.](https://python.org)
+- pip
+- main-noargs.py from the latest release
+- A .tl file for compiling
+
+#### Creating the EXE
+##### Install PyInstaller
+Enter the command:
 ```
-./portable-python/python.exe -m PyInstaller --onefile --add-data "file.tl;." main-noargs.py
+python -m pip install pyinstaller
+```
+##### Create the EXE
+Enter this command in the directory that contains main-noargs.py:
+```
+python -m PyInstaller --onefile --add-data "file.tl;." main-noargs.py
 ```
 and replace file.tl with your TurriLang file.
-Then run:
+Then to run the application:
 ```
 dist/main-noargs.exe
 ```
@@ -86,3 +99,4 @@ and it will print the results, or:
 python compiler-unix.py
 ```
 and enter the file path when prompted.
+

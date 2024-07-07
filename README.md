@@ -1,15 +1,17 @@
 # TurriLang
 GPT-4o's attempt at making a programming language using Python that supports Python code and it's own interpreter.
 # Commands
+## Commands:
+
 `print <text>` - Prints text to the screen.
 
-`loop_print <number> <text>` - Print <text> <number> times
+`loop_print <number> <text>` - Print text a number of times
 
-`func <name> <arg1> <arg2>` - Creates a function named <name> with two arguments: <arg1> and <arg2>
+`func <name> <arg1> <arg2>` - Creates a function named with two arguments: arg1 and arg2
 
-`if`, `elif`, `else`, `for`, `while` - Basic Python functions
+`if, elif, else, for, while` - Basic Python functions
 
-`end` - Ends `if`, `elif`, `else`, `for`, etc.
+`end` - Ends if, elif, else, for, etc.
 
 `double <name>` - Creates a double variable
 

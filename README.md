@@ -11,7 +11,7 @@ GPT-4o's attempt at making a programming language using Python that supports Pyt
 
 `if, elif, else, for, while` - Basic Python functions
 
-`end` - Ends if, elif, else, for, etc.
+`end` - Ends `if`, `elif`, `else`, `for`, etc.
 
 `double <name>` - Creates a double variable
 

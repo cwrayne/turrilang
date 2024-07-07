@@ -1,7 +1,5 @@
 # TurriLang
 GPT-4o's attempt at making a programming language using Python that supports Python code and it's own interpreter.
-## Pip Dependencies
-- `argparse`
 # Commands
 `print <text>` - Prints text to the screen.
 

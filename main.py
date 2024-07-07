@@ -1,9 +1,8 @@
-# main.py
-
 def parse_turrilang_code(code):
     python_code = ""
     indent_level = 0
     indent = "    "
+    control_stack = []
 
     def increase_indent():
         nonlocal indent_level
@@ -11,76 +10,95 @@ def parse_turrilang_code(code):
 
     def decrease_indent():
         nonlocal indent_level
-        indent_level -= 1
+        if indent_level > 0:
+            indent_level -= 1
+
+    def append_line(line):
+        nonlocal python_code
+        python_code += f"{indent * indent_level}{line}\n"
 
     for line in code.splitlines():
         stripped_line = line.strip()
 
+        if stripped_line == 'end':
+            while control_stack:
+                control_stack.pop()
+                decrease_indent()
+            continue
+
+        # Handle different constructs
         if stripped_line.startswith("print "):
-            python_code += f"{indent * indent_level}print({stripped_line[6:]})\n"
-        elif "=" in stripped_line and "==" not in stripped_line:  # basic variable assignment
-            python_code += f"{indent * indent_level}{stripped_line}\n"
+            append_line(f"print({stripped_line[6:]})")
+        elif "=" in stripped_line and "==" not in stripped_line:
+            append_line(stripped_line)
         elif stripped_line.startswith("if "):
             condition = stripped_line[3:].rstrip(":")
-            python_code += f"{indent * indent_level}if {condition}:\n"
+            append_line(f"if {condition}:")
             increase_indent()
+            control_stack.append("if")
         elif stripped_line.startswith("elif "):
-            decrease_indent()
+            if control_stack and control_stack[-1] == "if":
+                control_stack.pop()
+                decrease_indent()
             condition = stripped_line[5:].rstrip(":")
-            python_code += f"{indent * indent_level}elif {condition}:\n"
+            append_line(f"elif {condition}:")
             increase_indent()
+            control_stack.append("elif")
         elif stripped_line.startswith("else"):
-            decrease_indent()
-            python_code += f"{indent * indent_level}else:\n"
+            if control_stack and control_stack[-1] == "if":
+                control_stack.pop()
+                decrease_indent()
+            append_line("else:")
             increase_indent()
+            control_stack.append("else")
         elif stripped_line.startswith("for "):
             rest_of_line = stripped_line[4:].rstrip(":")
-            python_code += f"{indent * indent_level}for {rest_of_line}:\n"
+            append_line(f"for {rest_of_line}:")
             increase_indent()
+            control_stack.append("for")
         elif stripped_line.startswith("while "):
             condition = stripped_line[6:].rstrip(":")
-            python_code += f"{indent * indent_level}while {condition}:\n"
+            append_line(f"while {condition}:")
             increase_indent()
+            control_stack.append("while")
         elif stripped_line.startswith("print_upper "):
             text = stripped_line[12:].strip("\"'")  # Extract text without quotes
-            python_code += f"{indent * indent_level}print({text.upper()!r})\n"
+            append_line(f"print({text.upper()!r})")
         elif stripped_line.startswith("double "):
             var = stripped_line[7:].strip()
-            python_code += f"{indent * indent_level}{var} *= 2\n"
+            append_line(f"{var} *= 2")
         elif stripped_line.startswith("swap "):
             vars = stripped_line[5:].split(",")
             var1, var2 = vars[0].strip(), vars[1].strip()
-            python_code += f"{indent * indent_level}{var1}, {var2} = {var2}, {var1}\n"
+            append_line(f"{var1}, {var2} = {var2}, {var1}")
         elif stripped_line.startswith("increment "):
             var = stripped_line[10:].strip()
-            python_code += f"{indent * indent_level}{var} += 1\n"
+            append_line(f"{var} += 1")
         elif stripped_line.startswith("loop_print "):
             parts = stripped_line[11:].split(" ", 1)
             n, message = parts[0], parts[1].strip("\"'")
-            python_code += f"{indent * indent_level}for _ in range({n}):\n"
+            append_line(f"for _ in range({n}):")
             increase_indent()
-            python_code += f"{indent * indent_level}print({message!r})\n"
+            append_line(f"print({message!r})")
             decrease_indent()
         elif stripped_line.startswith("func "):
             parts = stripped_line.split()
             func_name = parts[1]
             args = ", ".join(parts[2:]).rstrip(":")
-            python_code += f"{indent * indent_level}def {func_name}({args}):\n"
+            append_line(f"def {func_name}({args}):")
             increase_indent()
-        elif stripped_line == "end_func":
-            decrease_indent()
+            control_stack.append("func")
         elif stripped_line.startswith("check_even "):
             var = stripped_line[11:].strip()
-            python_code += f"{indent * indent_level}if {var} % 2 == 0:\n"
+            append_line(f"if {var} % 2 == 0:")
             increase_indent()
-            python_code += f"{indent * indent_level}print({var} + ' is even')\n"
+            append_line(f"print(f'{{{var}}} is even')")
             decrease_indent()
         else:
-            if stripped_line.endswith(":"):  # Handle cases where user provided incorrect indent
-                increase_indent()
-            python_code += f"{indent * indent_level}{stripped_line}\n"
+            append_line(stripped_line)
 
     return python_code
+
 
 
 def parse_and_translate(input_file, output_file):

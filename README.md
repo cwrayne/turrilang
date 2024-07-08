@@ -52,7 +52,7 @@ or:
 ```
 portable-python_XXX\python.exe: No module named ensurepip
 ```
-then solve it by editing [portable python directory]/pythonXXX._pth and remove the `#` from `#import site`
+then solve it by editing [portable python directory]/pythonXXX._pth and remove the `#` from `#import site`.
 #### Install PyInstaller
 Install pyinstaller using CMD/PowerShell in the turrilang directory, **NOT** in the portable-python directory using this command:
 ```batch

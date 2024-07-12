@@ -1,13 +1,14 @@
-# main.py
-
 import os
 import sys
+import tkinter as tk
+from tkinter import filedialog
+from tkinter.scrolledtext import ScrolledText
+import subprocess
 
 def parse_turrilang_code(code):
     python_code = ""
     indent_level = 0
     indent = "    "
-    control_stack = []
 
     def increase_indent():
         nonlocal indent_level
@@ -15,92 +16,74 @@ def parse_turrilang_code(code):
 
     def decrease_indent():
         nonlocal indent_level
-        if indent_level > 0:
-            indent_level -= 1
-
-    def append_line(line):
-        nonlocal python_code
-        python_code += f"{indent * indent_level}{line}\n"
+        indent_level -= 1
 
     for line in code.splitlines():
         stripped_line = line.strip()
 
-        if stripped_line == 'end':
-            while control_stack:
-                control_stack.pop()
-                decrease_indent()
-            continue
-
-        # Handle different constructs
         if stripped_line.startswith("print "):
-            append_line(f"print({stripped_line[6:]})")
-        elif "=" in stripped_line and "==" not in stripped_line:
-            append_line(stripped_line)
+            python_code += f"{indent * indent_level}print({stripped_line[6:]})\n"
+        elif "=" in stripped_line and "==" not in stripped_line:  # basic variable assignment
+            python_code += f"{indent * indent_level}{stripped_line}\n"
         elif stripped_line.startswith("if "):
             condition = stripped_line[3:].rstrip(":")
-            append_line(f"if {condition}:")
+            python_code += f"{indent * indent_level}if {condition}:\n"
             increase_indent()
-            control_stack.append("if")
         elif stripped_line.startswith("elif "):
-            if control_stack and control_stack[-1] == "if":
-                control_stack.pop()
-                decrease_indent()
+            decrease_indent()
             condition = stripped_line[5:].rstrip(":")
-            append_line(f"elif {condition}:")
+            python_code += f"{indent * indent_level}elif {condition}:\n"
             increase_indent()
-            control_stack.append("elif")
         elif stripped_line.startswith("else"):
-            if control_stack and control_stack[-1] == "if":
-                control_stack.pop()
-                decrease_indent()
-            append_line("else:")
+            decrease_indent()
+            python_code += f"{indent * indent_level}else:\n"
             increase_indent()
-            control_stack.append("else")
         elif stripped_line.startswith("for "):
             rest_of_line = stripped_line[4:].rstrip(":")
-            append_line(f"for {rest_of_line}:")
+            python_code += f"{indent * indent_level}for {rest_of_line}:\n"
             increase_indent()
-            control_stack.append("for")
         elif stripped_line.startswith("while "):
             condition = stripped_line[6:].rstrip(":")
-            append_line(f"while {condition}:")
+            python_code += f"{indent * indent_level}while {condition}:\n"
             increase_indent()
-            control_stack.append("while")
         elif stripped_line.startswith("print_upper "):
             text = stripped_line[12:].strip("\"'")  # Extract text without quotes
-            append_line(f"print({text.upper()!r})")
+            python_code += f"{indent * indent_level}print({text.upper()!r})\n"
         elif stripped_line.startswith("double "):
             var = stripped_line[7:].strip()
-            append_line(f"{var} *= 2")
+            python_code += f"{indent * indent_level}{var} *= 2\n"
         elif stripped_line.startswith("swap "):
             vars = stripped_line[5:].split(",")
             var1, var2 = vars[0].strip(), vars[1].strip()
-            append_line(f"{var1}, {var2} = {var2}, {var1}")
+            python_code += f"{indent * indent_level}{var1}, {var2} = {var2}, {var1}\n"
         elif stripped_line.startswith("increment "):
             var = stripped_line[10:].strip()
-            append_line(f"{var} += 1")
+            python_code += f"{indent * indent_level}{var} += 1\n"
         elif stripped_line.startswith("loop_print "):
             parts = stripped_line[11:].split(" ", 1)
             n, message = parts[0], parts[1].strip("\"'")
-            append_line(f"for _ in range({n}):")
+            python_code += f"{indent * indent_level}for _ in range({n}):\n"
             increase_indent()
-            append_line(f"print({message!r})")
+            python_code += f"{indent * indent_level}print({message!r})\n"
             decrease_indent()
         elif stripped_line.startswith("func "):
             parts = stripped_line.split()
             func_name = parts[1]
             args = ", ".join(parts[2:]).rstrip(":")
-            append_line(f"def {func_name}({args}):")
+            python_code += f"{indent * indent_level}def {func_name}({args}):\n"
             increase_indent()
-            control_stack.append("func")
+        elif stripped_line == "end_func":
+            decrease_indent()
         elif stripped_line.startswith("check_even "):
             var = stripped_line[11:].strip()
-            append_line(f"if {var} % 2 == 0:")
+            python_code += f"{indent * indent_level}if {var} % 2 == 0:\n"
             increase_indent()
-            append_line(f"print(f'{{{var}}} is even')")
+            python_code += f"{indent * indent_level}print({var} + ' is even')\n"
             decrease_indent()
         else:
-            append_line(stripped_line)
+            if stripped_line.endswith(":"):  # Handle cases where user provided incorrect indent
+                increase_indent()
+            python_code += f"{indent * indent_level}{stripped_line}\n"
 
     return python_code
 
@@ -114,30 +97,31 @@ def parse_and_translate(input_file, output_file):
         file.write(python_code)
 
 def execute_translated_code(python_file):
-    with open(python_file, 'r') as file:
-        exec(file.read())
+    result = subprocess.run(['python3', python_file], capture_output=True, text=True)
+    return result.stdout
 
-def resource_path(relative_path):
-    """Get the absolute path to resource, works for dev and for PyInstaller"""
-    try:
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.abspath(".")
-    return os.path.join(base_path, relative_path)
+def open_file():
+    input_file = filedialog.askopenfilename(filetypes=[("Turrilang files", "*.tl"), ("All files", "*.*")])
+    if input_file:
+        output_file = "translated_code.py"
+        parse_and_translate(input_file, output_file)
+        output = execute_translated_code(output_file)
+        text_area.config(state=tk.NORMAL)
+        text_area.delete(1.0, tk.END)
+        text_area.insert(tk.END, output)
+        text_area.config(state=tk.DISABLED)
 
-if __name__ == "__main__":
-    if len(sys.argv) == 2:
-        # Get input file from command line argument
-        input_file = sys.argv[1]
-    else:
-        # Ask user for the file path
-        input_file = input("Enter the path to the .tl file: ").strip()
+# Create the main window
+root = tk.Tk()
+root.title("Turrilang Interpreter")
 
-    if not os.path.isfile(input_file):
-        print(f"File not found: {input_file}")
-        sys.exit(1)
-    
-    output_file = "translated_code.py"
-    
-    parse_and_translate(input_file, output_file)
-    execute_translated_code(output_file)
+# Create a ScrolledText widget
+text_area = ScrolledText(root, wrap=tk.WORD, width=100, height=30)
+text_area.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
+
+# Create a button to open file
+open_button = tk.Button(root, text="Open .tl File", command=open_file)
+open_button.pack(pady=10)
+
+# Start the Tkinter event loop
+root.mainloop()

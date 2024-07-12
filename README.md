@@ -92,18 +92,32 @@ Then to run the application:
 dist/create-exe.exe
 ```
 and it will print the results.
-## Unix (macOS and Linux)
+## macOS
+
 ### Dependencies
 - Python - Get it from [Python's official website.](https://python.org)
-- Latest compiler-unix.py
+- Latest compiler.app.zip
 ### Run a file
 Run the command:
 ```
-python compiler-unix.py <file>
+compiler.app <file>
 ```
 and it will print the results, or:
 ```
 python compiler-unix.py
 ```
 and enter the file path when prompted.
-
+## Linux
+### Dependencies
+- Python - Get it from [Python's official website.](https://python.org)
+- Latest compiler-linux.py
+### Run a file
+Run the command:
+```
+python compiler-linux.py <file>
+```
+and it will print the results, or:
+```
+python compiler-linux.py
+```
+and enter the file path when prompted.
